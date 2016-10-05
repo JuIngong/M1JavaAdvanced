@@ -40,7 +40,6 @@ public class MyLs {
     }
 
     public String deepListWithFilter(File file, String filter) {
-        StringBuilder sb = new StringBuilder();
         FilenameFilter fnf = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -49,7 +48,21 @@ public class MyLs {
                 return new File(dir, name).isDirectory() || matcher.find();
             }
         };
+        return this.loopForDeepList(file, fnf, filter);
+    }
 
+    public String deepListWithFilterExtern(File file, String filter) {
+        FilenameFilter fnf = new MyFilenameFilter(filter);
+        return this.loopForDeepList(file, fnf, filter);
+    }
+
+    public String deepListWithFilterIntern(File file, String filter) {
+        FilenameFilter fnf = new MyFilenameFilterIntern(filter);
+        return this.loopForDeepList(file, fnf, filter);
+    }
+
+    public String loopForDeepList(File file, FilenameFilter fnf, String filter){
+        StringBuilder sb = new StringBuilder();
         for (File f : file.listFiles(fnf)) {
             if (f.isFile()) {
                 sb.append(f).append("\n");
@@ -60,11 +73,28 @@ public class MyLs {
         return sb.toString();
     }
 
+    public class MyFilenameFilterIntern implements FilenameFilter {
+
+        private String filter;
+
+        public MyFilenameFilterIntern(String filter) {
+            this.filter = filter;
+        }
+
+        @Override
+        public boolean accept(File dir, String name) {
+            Pattern pattern = Pattern.compile(filter);
+            Matcher matcher = pattern.matcher(name);
+            return new File(dir, name).isDirectory() || matcher.find();
+        }
+    }
 
     public static void main(String[] args) {
-        System.out.println(new MyLs().listFileAsString(new File(".")));
-        System.out.println(new MyLs().deepList(new File(".")));
-        System.out.println("MyLs.main \n" + new MyLs().deepListWithFilter(new File("."), "\\d"));
+//        System.out.println(new MyLs().listFileAsString(new File(".")));
+//        System.out.println(new MyLs().deepList(new File(".")));
+        System.out.println("MyLs.main \n" + new MyLs().deepListWithFilter(new File("."), ".class"));
+        System.out.println("MyLs.main \n" + new MyLs().deepListWithFilterExtern(new File("."), ".class"));
+        System.out.println("MyLs.main \n" + new MyLs().deepListWithFilterIntern(new File("."), ".class"));
     }
 }
 
